@@ -17,6 +17,36 @@ class DatasetLoader:
         """
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
         self.tokenizer.pad_token = self.tokenizer.eos_token
+    
+    def load_bangla_squad(self) -> Dataset:
+        """Load and preprocess the Bangla SQuAD dataset.
+        
+        Returns:
+            Preprocessed dataset
+        """
+        dataset = load_dataset('csebuetnlp/bengali_qa')
+        logger.info(f"Loaded Bangla SQuAD dataset with {len(dataset['train'])} samples")
+        return dataset
+
+    def load_bangla_commonsense(self) -> Dataset:
+        """Load and preprocess the Bangla Common Sense dataset.
+        
+        Returns:
+            Preprocessed dataset
+        """
+        dataset = load_dataset('csebuetnlp/bengali_commonsense')
+        logger.info(f"Loaded Bangla Common Sense dataset with {len(dataset['train'])} samples")
+        return dataset
+    
+    def load_bangla_xnli(self) -> Dataset:
+        """Load and preprocess the Bangla XNLI dataset for natural language inference.
+        
+        Returns:
+            Preprocessed dataset
+        """
+        dataset = load_dataset('xnli', 'bn')
+        logger.info(f"Loaded Bangla XNLI dataset with {len(dataset['train'])} samples")
+        return dataset
         
     def load_code_alpaca(self, path: Optional[str] = None) -> Dataset:
         """Load and preprocess the Code Alpaca dataset.
@@ -112,23 +142,33 @@ class DatasetLoader:
         return combined
 
     def prepare_training_dataset(self, 
+                               include_code: bool = False,
                                code_alpaca_path: Optional[str] = None,
                                code_instruct_path: Optional[str] = None) -> Dataset:
         """Prepare the complete training dataset.
         
         Args:
+            include_code: Whether to include code-related datasets
             code_alpaca_path: Optional path to local Code Alpaca dataset
             code_instruct_path: Optional path to local CodeInstruct dataset
             
         Returns:
             Complete preprocessed dataset ready for training
         """
-        # Load individual datasets
+        # Load Bangla datasets
         datasets = [
-            self.load_code_alpaca(code_alpaca_path),
-            self.load_human_eval(),
-            self.load_code_instruct(code_instruct_path)
+            self.load_bangla_squad(),
+            self.load_bangla_commonsense(),
+            self.load_bangla_xnli()
         ]
+        
+        # Optionally include code datasets
+        if include_code:
+            datasets.extend([
+                self.load_code_alpaca(code_alpaca_path),
+                self.load_human_eval(),
+                self.load_code_instruct(code_instruct_path)
+            ])
         
         # Merge datasets
         combined = self.merge_datasets(datasets)

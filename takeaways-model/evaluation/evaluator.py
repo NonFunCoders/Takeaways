@@ -42,14 +42,14 @@ class ModelEvaluator:
         )
         self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_path)
         
-    def generate_code(self, prompt: str) -> str:
-        """Generate code from a prompt.
+    def generate_response(self, prompt: str) -> str:
+        """Generate response for a prompt.
         
         Args:
             prompt: Input prompt
             
         Returns:
-            Generated code
+            Generated response
         """
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
         
@@ -62,9 +62,9 @@ class ModelEvaluator:
         )
         
         return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-    def evaluate_human_eval(self, num_samples: int = 10) -> Dict[str, float]:
-        """Evaluate model on HumanEval benchmark.
+
+    def evaluate_bangla_qa(self, num_samples: int = 10) -> Dict[str, float]:
+        """Evaluate model on Bangla question answering.
         
         Args:
             num_samples: Number of samples to evaluate
@@ -72,8 +72,8 @@ class ModelEvaluator:
         Returns:
             Dictionary with metrics
         """
-        logger.info("Starting HumanEval evaluation...")
-        dataset = load_dataset("openai_humaneval")["test"]
+        logger.info("Starting Bangla QA evaluation...")
+        dataset = load_dataset("csebuetnlp/bengali_qa")["test"]
         
         if num_samples:
             dataset = dataset.select(range(num_samples))
@@ -83,41 +83,29 @@ class ModelEvaluator:
         
         for sample in dataset:
             # Prepare prompt
-            prompt = f"### Instruction:\nImplement the following Python function.\n\n### Input:\n{sample['prompt']}\n\n### Response:\n"
+            prompt = f"### Instruction:\nবাংলায় প্রশ্নের উত্তর দিন।\n\n### Input:\nপ্রসঙ্গ: {sample['context']}\n\nপ্রশ্ন: {sample['question']}\n\n### Response:\n"
             
-            # Generate solution
-            generated_code = self.generate_code(prompt)
+            # Generate answer
+            generated = self.generate_response(prompt)
             
-            # Extract just the function implementation
             try:
-                generated_code = generated_code.split("### Response:\n")[1].strip()
-            except IndexError:
+                answer = generated.split("### Response:\n")[1].strip()
+                # Basic exact match scoring
+                if answer.lower() == sample['answers']['text'][0].lower():
+                    correct += 1
+            except (IndexError, KeyError):
                 continue
                 
-            # Write test to temporary file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-                f.write(generated_code + "\n\n" + sample['test'])
-                test_file = f.name
-                
-            # Run tests
-            try:
-                subprocess.run(['python', test_file], check=True, capture_output=True)
-                correct += 1
-            except subprocess.CalledProcessError:
-                pass
-            finally:
-                os.unlink(test_file)
-                
         metrics = {
-            "human_eval_accuracy": correct / total,
-            "samples_evaluated": total
+            "bangla_qa_accuracy": correct / total,
+            "qa_samples_evaluated": total
         }
         
-        logger.info(f"HumanEval Results: {metrics}")
+        logger.info(f"Bangla QA Results: {metrics}")
         return metrics
-        
-    def evaluate_mbpp(self, num_samples: int = 10) -> Dict[str, float]:
-        """Evaluate model on MBPP benchmark.
+
+    def evaluate_bangla_nli(self, num_samples: int = 10) -> Dict[str, float]:
+        """Evaluate model on Bangla natural language inference.
         
         Args:
             num_samples: Number of samples to evaluate
@@ -125,8 +113,54 @@ class ModelEvaluator:
         Returns:
             Dictionary with metrics
         """
-        logger.info("Starting MBPP evaluation...")
-        dataset = load_dataset("mbpp")["test"]
+        logger.info("Starting Bangla NLI evaluation...")
+        dataset = load_dataset("xnli", "bn")["test"]
+        
+        if num_samples:
+            dataset = dataset.select(range(num_samples))
+            
+        correct = 0
+        total = len(dataset)
+        
+        label_map = {
+            "entailment": "অনুসিদ্ধান্ত",
+            "contradiction": "বিরোধিতা",
+            "neutral": "নিরপেক্ষ"
+        }
+        
+        for sample in dataset:
+            # Prepare prompt
+            prompt = f"### Instruction:\nনীচের দুটি বাক্যের মধ্যে সম্পর্ক নির্ণয় করুন: অনুসিদ্ধান্ত, বিরোধিতা, বা নিরপেক্ষ?\n\n### Input:\nবাক্য ১: {sample['premise']}\nবাক্য ২: {sample['hypothesis']}\n\n### Response:\n"
+            
+            # Generate prediction
+            generated = self.generate_response(prompt)
+            
+            try:
+                prediction = generated.split("### Response:\n")[1].strip()
+                if prediction == label_map[sample['label']]:
+                    correct += 1
+            except (IndexError, KeyError):
+                continue
+                
+        metrics = {
+            "bangla_nli_accuracy": correct / total,
+            "nli_samples_evaluated": total
+        }
+        
+        logger.info(f"Bangla NLI Results: {metrics}")
+        return metrics
+
+    def evaluate_bangla_commonsense(self, num_samples: int = 10) -> Dict[str, float]:
+        """Evaluate model on Bangla common sense reasoning.
+        
+        Args:
+            num_samples: Number of samples to evaluate
+            
+        Returns:
+            Dictionary with metrics
+        """
+        logger.info("Starting Bangla Common Sense evaluation...")
+        dataset = load_dataset("csebuetnlp/bengali_commonsense")["test"]
         
         if num_samples:
             dataset = dataset.select(range(num_samples))
@@ -136,102 +170,45 @@ class ModelEvaluator:
         
         for sample in dataset:
             # Prepare prompt
-            prompt = (
-                f"### Instruction:\n{sample['text']}\n\n"
-                f"### Input:\nWrite a Python function to solve this problem.\n\n"
-                f"### Response:\n"
-            )
+            prompt = f"### Instruction:\nনিম্নলিখিত প্রশ্নের সাধারণ জ্ঞান ভিত্তিক উত্তর দিন।\n\n### Input:\n{sample['question']}\n\n### Response:\n"
             
-            # Generate solution
-            generated_code = self.generate_code(prompt)
+            # Generate answer
+            generated = self.generate_response(prompt)
             
-            # Extract just the function implementation
             try:
-                generated_code = generated_code.split("### Response:\n")[1].strip()
-            except IndexError:
+                prediction = generated.split("### Response:\n")[1].strip()
+                if prediction.lower() == sample['answer'].lower():
+                    correct += 1
+            except (IndexError, KeyError):
                 continue
                 
-            # Write test file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-                f.write(generated_code + "\n\n")
-                # Add test cases
-                for test_case in sample['test_list']:
-                    f.write(f"assert {test_case}\n")
-                test_file = f.name
-                
-            # Run tests
-            try:
-                subprocess.run(['python', test_file], check=True, capture_output=True)
-                correct += 1
-            except subprocess.CalledProcessError:
-                pass
-            finally:
-                os.unlink(test_file)
-                
         metrics = {
-            "mbpp_accuracy": correct / total,
-            "samples_evaluated": total
+            "bangla_commonsense_accuracy": correct / total,
+            "commonsense_samples_evaluated": total
         }
         
-        logger.info(f"MBPP Results: {metrics}")
-        return metrics
-        
-    def evaluate_code_explanation(self, samples: List[Dict[str, str]]) -> Dict[str, float]:
-        """Evaluate model's code explanation capabilities.
-        
-        Args:
-            samples: List of dictionaries with 'code' and 'explanation' keys
-            
-        Returns:
-            Dictionary with metrics
-        """
-        logger.info("Evaluating code explanation capabilities...")
-        
-        scores = []
-        for sample in samples:
-            # Prepare prompt
-            prompt = f"### Instruction:\nExplain the following code step by step.\n\n### Input:\n{sample['code']}\n\n### Response:\n"
-            
-            # Generate explanation
-            generated_explanation = self.generate_code(prompt)
-            
-            # Compare with reference explanation (simple word overlap metric)
-            reference_words = set(sample['explanation'].lower().split())
-            generated_words = set(generated_explanation.lower().split())
-            
-            overlap = len(reference_words.intersection(generated_words)) / len(reference_words)
-            scores.append(overlap)
-            
-        metrics = {
-            "explanation_quality": np.mean(scores),
-            "samples_evaluated": len(samples)
-        }
-        
-        logger.info(f"Code Explanation Results: {metrics}")
+        logger.info(f"Bangla Common Sense Results: {metrics}")
         return metrics
         
     def run_full_evaluation(self, 
-                          num_samples: int = 10,
-                          explanation_samples: Optional[List[Dict[str, str]]] = None) -> Dict[str, float]:
+                          num_samples: int = 10) -> Dict[str, float]:
         """Run complete evaluation suite.
         
         Args:
-            num_samples: Number of samples for HumanEval and MBPP
-            explanation_samples: Optional samples for explanation evaluation
+            num_samples: Number of samples for each evaluation task
             
         Returns:
             Dictionary with all metrics
         """
         metrics = {}
         
-        # Run HumanEval
-        metrics.update(self.evaluate_human_eval(num_samples))
+        # Run Bangla QA evaluation
+        metrics.update(self.evaluate_bangla_qa(num_samples))
         
-        # Run MBPP
-        metrics.update(self.evaluate_mbpp(num_samples))
+        # Run Bangla NLI evaluation
+        metrics.update(self.evaluate_bangla_nli(num_samples))
         
-        # Run explanation evaluation if samples provided
-        if explanation_samples:
-            metrics.update(self.evaluate_code_explanation(explanation_samples))
+        # Run Bangla Common Sense evaluation
+        metrics.update(self.evaluate_bangla_commonsense(num_samples))
             
         return metrics

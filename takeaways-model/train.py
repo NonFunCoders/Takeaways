@@ -30,8 +30,7 @@ def main(args):
     # Prepare dataset
     logger.info("Preparing training dataset...")
     dataset = dataset_loader.prepare_training_dataset(
-        code_alpaca_path=config["data"]["datasets"]["code_alpaca"].get("path"),
-        code_instruct_path=config["data"]["datasets"]["code_instruct"].get("path")
+        include_code=config["data"].get("include_code_data", False)
     )
     
     # Initialize trainer
