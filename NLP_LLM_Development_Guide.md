@@ -19,6 +19,32 @@ This guide provides practical, step-by-step instructions for developing Natural 
     - [Basic Configuration Structure](#basic-configuration-structure)
     - [Configuration for Different Model Types](#configuration-for-different-model-types)
     - [DeepSpeed Integration](#deepspeed-integration)
+  - [Model Training](#model-training)
+    - [Setting Up Training Scripts](#setting-up-training-scripts)
+    - [Running Training with DeepSpeed](#running-training-with-deepspeed)
+    - [Monitoring Training Progress](#monitoring-training-progress)
+  - [Evaluation](#evaluation)
+    - [Perplexity Evaluation](#perplexity-evaluation)
+    - [Task-Specific Evaluation](#task-specific-evaluation)
+    - [Human Evaluation](#human-evaluation)
+  - [Fine-tuning \& Optimization](#fine-tuning--optimization)
+    - [Parameter-Efficient Fine-tuning (PEFT)](#parameter-efficient-fine-tuning-peft)
+    - [Quantization](#quantization)
+    - [Pruning](#pruning)
+    - [Hyperparameter Optimization](#hyperparameter-optimization)
+  - [Deployment Options](#deployment-options)
+    - [Hugging Face Model Hub](#hugging-face-model-hub)
+    - [FastAPI Server](#fastapi-server)
+    - [Optimized Inference with ONNX](#optimized-inference-with-onnx)
+    - [3. Repository Setup](#3-repository-setup-1)
+  - [Public Datasets for NLP](#public-datasets-for-nlp-1)
+    - [Text Corpora for Pre-training](#text-corpora-for-pre-training-1)
+    - [Specialized Datasets for Fine-tuning](#specialized-datasets-for-fine-tuning-1)
+    - [Data Processing Example](#data-processing-example-1)
+  - [YAML Configuration](#yaml-configuration-1)
+    - [Basic Configuration Structure](#basic-configuration-structure-1)
+    - [Configuration for Different Model Types](#configuration-for-different-model-types-1)
+    - [DeepSpeed Integration](#deepspeed-integration-1)
 - [deepspeed\_config.yaml](#deepspeed_configyaml)
 
 ## Introduction to NLP LLMs
@@ -740,338 +766,200 @@ LLM development typically requires:
 
 ### 2. Software Environment
 
-## Introduction to NLP LLMs
+Create a dedicated environment with the necessary libraries:
 
-Large Language Models (LLMs) represent a significant advancement in NLP. These models:
+```bash
+# Create conda environment
+conda create -n llm_dev python=3.10
+conda activate llm_dev
 
-- Are trained on massive text corpora
-- Can generate human-like text
-- Understand context and nuance
-- Power applications like chatbots, content generation, summarization, and translation
-
-Popular open-source LLMs include:
-
-- **LLaMA**: Meta's efficient foundation model
-- **Falcon**: Technology Innovation Institute's open model
-- **Mistral**: High-performance 7B parameter model
-- **MPT**: MosaicML's Pretrained Transformer
-- **Pythia**: EleutherAI's suite of models
-- **BLOOM**: BigScience's multilingual model
-
-## Environment Setup
-
-### 1. Hardware Requirements
-
-LLM development typically requires:
-
-| Model Size | Recommended Hardware | Alternatives |
-|------------|----------------------|--------------|
-| Small (1-3B parameters) | Single GPU with 16GB+ VRAM | Cloud GPU instances, Google Colab Pro |
-| Medium (7-13B parameters) | Multi-GPU setup with 24-32GB VRAM per GPU | Cloud instances with A100/H100 GPUs |
-| Large (20B+ parameters) | GPU cluster or specialized hardware | Training through distributed computing |
-
-### 2. Software Environment
-
-## Introduction to NLP LLMs
-
-Large Language Models (LLMs) represent a significant advancement in NLP. These models:
-
-- Are trained on massive text corpora
-- Can generate human-like text
-- Understand context and nuance
-- Power applications like chatbots, content generation, summarization, and translation
-
-Popular open-source LLMs include:
-
-- **LLaMA**: Meta's efficient foundation model
-- **Falcon**: Technology Innovation Institute's open model
-- **Mistral**: High-performance 7B parameter model
-- **MPT**: MosaicML's Pretrained Transformer
-- **Pythia**: EleutherAI's suite of models
-- **BLOOM**: BigScience's multilingual model
-
-## Environment Setup
-
-### 1. Hardware Requirements
-
-LLM development typically requires:
-
-| Model Size | Recommended Hardware | Alternatives |
-|------------|----------------------|--------------|
-| Small (1-3B parameters) | Single GPU with 16GB+ VRAM | Cloud GPU instances, Google Colab Pro |
-    - [Basic Configuration Structure](#basic-configuration-structure)
-    - [Configuration for Different Model Types](#configuration-for-different-model-types)
-    - [DeepSpeed Integration](#deepspeed-integration)
-- [deepspeed\_config.yaml](#deepspeed_configyaml)
-
-## Introduction to NLP LLMs
-
-Large Language Models (LLMs) represent a significant advancement in NLP. These models:
-
-- Are trained on massive text corpora
-- Can generate human-like text
-torch.onnx.export(
-    model,
-    (
-# Building NLP LLM Models with Open Source Tools
-
-This guide provides practical, step-by-step instructions for developing Natural Language Processing (NLP) Large Language Models (LLMs) using open-source tools, public datasets, and YAML configuration.
-
-## Table of Contents
-
-- [Building NLP LLM Models with Open Source Tools](#building-nlp-llm-models-with-open-source-tools)
-  - [Table of Contents](#table-of-contents)
-  - [Introduction to NLP LLMs](#introduction-to-nlp-llms)
-  - [Environment Setup](#environment-setup)
-    - [1. Hardware Requirements](#1-hardware-requirements)
-    - [2. Software Environment](#2-software-environment)
-    - [3. Repository Setup](#3-repository-setup)
-  - [Public Datasets for NLP](#public-datasets-for-nlp)
-    - [Text Corpora for Pre-training](#text-corpora-for-pre-training)
-    - [Specialized Datasets for Fine-tuning](#specialized-datasets-for-fine-tuning)
-    - [Data Processing Example](#data-processing-example)
-  - [YAML Configuration](#yaml-configuration)
-    - [Basic Configuration Structure](#basic-configuration-structure)
-    - [Configuration for Different Model Types](#configuration-for-different-model-types)
-    - [DeepSpeed Integration](#deepspeed-integration)
-- [deepspeed\_config.yaml](#deepspeed_configyaml)
-
-## Introduction to NLP LLMs
-
-Large Language Models (LLMs) represent a significant advancement in NLP. These models:
-
-
-# Export model to ONNX
-torch.onnx.export(
-    model,
-    (
-# Building NLP LLM Models with Open Source Tools
-
-This guide provides practical, step-by-step instructions for developing Natural Language Processing (NLP) Large Language Models (LLMs) using open-source tools, public datasets, and YAML configuration.
-
-## Table of Contents
-
-- [Building NLP LLM Models with Open Source Tools](#building-nlp-llm-models-with-open-source-tools)
-  - [Table of Contents](#table-of-contents)
-  - [Introduction to NLP LLMs](#introduction-to-nlp-llms)
-  - [Environment Setup](#environment-setup)
-    - [1. Hardware Requirements](#1-hardware-requirements)
-    - [2. Software Environment](#2-software-environment)
-    - [3. Repository Setup](#3-repository-setup)
-  - [Public Datasets for NLP](#public-datasets-for-nlp)
-    - [Text Corpora for Pre-training](#text-corpora-for-pre-training)
-    - [Specialized Datasets for Fine-tuning](#specialized-datasets-for-fine-tuning)
-    - [Data Processing Example](#data-processing-example)
-  - [YAML Configuration](#yaml-configuration)
-    - [Basic Configuration Structure](#basic-configuration-structure)
-    - [Configuration for Different Model Types](#configuration-for-different-model-types)
-    - [DeepSpeed Integration](#deepspeed-integration)
-- [deepspeed\_config.yaml](#deepspeed_configyaml)
-
-## Introduction to NLP LLMs
-
-# Create dummy input
-dummy_input = tokenizer("Hello, I am an AI language model", return_tensors="pt")
-
-# Export model to ONNX
-torch.onnx.export(
-    model,
-    (
-# Building NLP LLM Models with Open Source Tools
-
-This guide provides practical, step-by-step instructions for developing Natural Language Processing (NLP) Large Language Models (LLMs) using open-source tools, public datasets, and YAML configuration.
-
-## Table of Contents
-
-- [Building NLP LLM Models with Open Source Tools](#building-nlp-llm-models-with-open-source-tools)
-  - [Table of Contents](#table-of-contents)
-  - [Introduction to NLP LLMs](#introduction-to-nlp-llms)
-  - [Environment Setup](#environment-setup)
-    - [1. Hardware Requirements](#1-hardware-requirements)
-    - [2. Software Environment](#2-software-environment)
-    - [3. Repository Setup](#3-repository-setup)
-  - [Public Datasets for NLP](#public-datasets-for-nlp)
-    - [Text Corpora for Pre-training](#text-corpora-for-pre-training)
-    - [Specialized Datasets for Fine-tuning](#specialized-datasets-for-fine-tuning)
-    - [Data Processing Example](#data-processing-example)
-  - [YAML Configuration](#yaml-configuration)
-    - [Basic Configuration Structure](#basic-configuration-structure)
-    - [Configuration for Different Model Types](#configuration-for-different-model-types)
-    - [DeepSpeed Integration](#deepspeed-integration)
-- [deepspeed\_config.yaml](#deepspeed_configyaml)
-
-## Introduction to NLP LLMs
-
-# Create dummy input
-dummy_input = tokenizer("Hello, I am an AI language model", return_tensors="pt")
-
-# Export model to ONNX
-torch.onnx.export(
-    model,
-    (
-# Building NLP LLM Models with Open Source Tools
-
-This guide provides practical, step-by-step instructions for developing Natural Language Processing (NLP) Large Language Models (LLMs) using open-source tools, public datasets, and YAML configuration.
-
-## Table of Contents
-
-- [Building NLP LLM Models with Open Source Tools](#building-nlp-llm-models-with-open-source-tools)
-  - [Table of Contents](#table-of-contents)
-  - [Introduction to NLP LLMs](#introduction-to-nlp-llms)
-  - [Environment Setup](#environment-setup)
-    - [1. Hardware Requirements](#1-hardware-requirements)
-    - [2. Software Environment](#2-software-environment)
-    - [3. Repository Setup](#3-repository-setup)
-  - [Public Datasets for NLP](#public-datasets-for-nlp)
-    - [Text Corpora for Pre-training](#text-corpora-for-pre-training)
-    - [Specialized Datasets for Fine-tuning](#specialized-datasets-for-fine-tuning)
-    - [Data Processing Example](#data-processing-example)
-  - [YAML Configuration](#yaml-configuration)
-    - [Basic Configuration Structure](#basic-configuration-structure)
-    - [Configuration for Different Model Types](#configuration-for-different-model-types)
-    - [DeepSpeed Integration](#deepspeed-integration)
-- [deepspeed\_config.yaml](#deepspeed_configyaml)
-onnx_path = Path("./models/llama-7b-onnx")
-onnx_path.mkdir(exist_ok=True, parents=True)
-
-# Create dummy input
-dummy_input = tokenizer("Hello, I am an AI language model", return_tensors="pt")
-
-# Export model to ONNX
-torch.onnx.export(
-    model,
-    (
-# Building NLP LLM Models with Open Source Tools
-
-This guide provides practical, step-by-step instructions for developing Natural Language Processing (NLP) Large Language Models (LLMs) using open-source tools, public datasets, and YAML configuration.
-
-## Table of Contents
-
-- [Building NLP LLM Models with Open Source Tools](#building-nlp-llm-models-with-open-source-tools)
-  - [Table of Contents](#table-of-contents)
-  - [Introduction to NLP LLMs](#introduction-to-nlp-llms)
-  - [Environment Setup](#environment-setup)
-    - [1. Hardware Requirements](#1-hardware-requirements)
-    - [2. Software Environment](#2-software-environment)
-    - [3. Repository Setup](#3-repository-setup)
-  - [Public Datasets for NLP](#public-datasets-for-nlp)
-    - [Text Corpora for Pre-training](#text-corpora-for-pre-training)
-    - [Specialized Datasets for Fine-tuning](#specialized-datasets-for-fine-tuning)
-    - [Data Processing Example](#data-processing-example)
-model_path = "./models/llama-7b-finetuned"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path)
-
-# Export to ONNX
-onnx_path = Path("./models/llama-7b-onnx")
-onnx_path.mkdir(exist_ok=True, parents=True)
-
-# Create dummy input
-dummy_input = tokenizer("Hello, I am an AI language model", return_tensors="pt")
-
-# Export model to ONNX
-torch.onnx.export(
-    model,
-    (
-# Building NLP LLM Models with Open Source Tools
-
-This guide provides practical, step-by-step instructions for developing Natural Language Processing (NLP) Large Language Models (LLMs) using open-source tools, public datasets, and YAML configuration.
-
-## Table of Contents
-
-- [Building NLP LLM Models with Open Source Tools](#building-nlp-llm-models-with-open-source-tools)
-  - [Table of Contents](#table-of-contents)
-Convert model to ONNX for optimized inference:
-
-```python
-# convert_to_onnx.py
-from pathlib import Path
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-# Load model and tokenizer
-model_path = "./models/llama-7b-finetuned"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path)
-
-# Export to ONNX
-onnx_path = Path("./models/llama-7b-onnx")
-onnx_path.mkdir(exist_ok=True, parents=True)
-
-# Create dummy input
-dummy_input = tokenizer("Hello, I am an AI language model", return_tensors="pt")
-
-# Export model to ONNX
-torch.onnx.export(
-    model,
-    (
-# Building NLP LLM Models with Open Source Tools
-
-This guide provides practical, step-by-step instructions for developing Natural Language Processing (NLP) Large Language Models (LLMs) using open-source tools, public datasets, and YAML configuration.
+# Install essential packages
+pip install torch torchvision torchaudio
+pip install transformers datasets accelerate
+pip install wandb deepspeed
+pip install sentencepiece protobuf
+pip install pyyaml
 ```
 
-### Optimized Inference with ONNX
+### 3. Repository Setup
 
-Convert model to ONNX for optimized inference:
+```bash
+# Clone a starter repository
+git clone https://github.com/huggingface/transformers
+cd transformers
+pip install -e .
+
+# Create project structure
+mkdir -p my_llm_project/{configs,data,models,scripts,logs}
+```
+
+## Public Datasets for NLP
+
+### Text Corpora for Pre-training
+
+| Dataset | Description | Size | Access |
+|---------|-------------|------|--------|
+| [The Pile](https://pile.eleuther.ai/) | Diverse English text corpus | 825GB | `datasets.load_dataset("EleutherAI/pile")` |
+| [C4](https://huggingface.co/datasets/c4) | Common Crawl-based cleaned dataset | 305GB+ | `datasets.load_dataset("c4", "en")` |
+| [Wikipedia](https://huggingface.co/datasets/wikipedia) | Encyclopedia knowledge | 20GB+ | `datasets.load_dataset("wikipedia", "20220301.en")` |
+| [BookCorpus](https://huggingface.co/datasets/bookcorpus) | Collection of unpublished books | 4GB+ | `datasets.load_dataset("bookcorpus")` |
+
+### Specialized Datasets for Fine-tuning
+
+| Type | Dataset | Description | Access |
+|------|---------|-------------|--------|
+| General QA | [SQuAD](https://huggingface.co/datasets/squad) | Stanford Q&A | `datasets.load_dataset("squad")` |
+| Instruction Tuning | [Alpaca](https://huggingface.co/datasets/tatsu-lab/alpaca) | Instruction dataset | `datasets.load_dataset("tatsu-lab/alpaca")` |
+| Conversation | [Dolly 15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k) | Instruction-response pairs | `datasets.load_dataset("databricks/databricks-dolly-15k")` |
+| Coding | [The Stack](https://huggingface.co/datasets/bigcode/the-stack) | Code dataset | `datasets.load_dataset("bigcode/the-stack")` |
+
+### Data Processing Example
 
 ```python
-# convert_to_onnx.py
-from pathlib import Path
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from datasets import load_dataset
 
-# Load model and tokenizer
-model_path = "./models/llama-7b-finetuned"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path)
+# Load dataset
+dataset = load_dataset("EleutherAI/pile", split="train")
 
-# Export to ONNX
-onnx_path = Path("./models/llama-7b-onnx")
-onnx_path.mkdir(exist_ok=True, parents=True)
+# Basic preprocessing
+def preprocess_function(examples):
+    return {
+        "input_ids": tokenizer(examples["text"], truncation=True, max_length=512)["input_ids"],
+    }
 
-# Create dummy input
-dummy_input = tokenizer("Hello, I am an AI language model", return_tensors="pt")
+# Process dataset
+tokenized_dataset = dataset.map(
+    preprocess_function,
+    batched=True,
+    num_proc=4,
+    remove_columns=["text"],
+)
 
-# Export model to ONNX
-torch.onnx.export(
-    model,
-    (
-# Building NLP LLM Models with Open Source Tools
+# Create training splits
+train_dataset = tokenized_dataset.select(range(1000000))  # Adjust size as needed
+```
+
+## YAML Configuration
+
+YAML configuration files allow for flexible, declarative model training setup.
+
+### Basic Configuration Structure
+
+```yaml
+# model_config.yaml
+model:
+  type: "llama"  # Model architecture (llama, gpt2, pythia, etc.)
+  size: "7B"     # Model size (parameter count)
+  context_length: 2048  # Maximum input sequence length
+
+training:
+  learning_rate: 2e-5
+  batch_size: 32
+  gradient_accumulation_steps: 4
+  epochs: 3
+  warmup_steps: 500
+  optimizer: "adamw"
+  weight_decay: 0.01
+  lr_scheduler: "cosine"
+  fp16: true     # Mixed precision training
+
+data:
+  train_file: "data/processed/train.jsonl"
+  validation_file: "data/processed/val.jsonl"
+  tokenizer: "meta-llama/Llama-2-7b-hf"
+
+hardware:
+  devices: [0, 1]  # GPU IDs to use
+  distributed: true
+
+logging:
+  log_level: "info"
+  log_interval: 100  # Log every N steps
+  evaluation_interval: 1000  # Evaluate every N steps
+  wandb:
+    enabled: true
+    project: "llm-training"
+    name: "llama-7b-finetune"
+```
+
+### Configuration for Different Model Types
+
+```yaml
+# llama_config.yaml
+model:
+  type: "llama"
+  version: 2
+  size: "7B"
+  vocab_size: 32000
+  hidden_size: 4096
+  intermediate_size: 11008
+  num_hidden_layers: 32
+  num_attention_heads: 32
+  num_key_value_heads: 32
+  hidden_act: "silu"
+  max_position_embeddings: 4096
+  initializer_range: 0.02
+  rms_norm_eps: 1e-6
+  use_cache: true
+  rope_scaling: null
+```
+
+### DeepSpeed Integration
+
+```yaml
+# deepspeed_config.yaml
+deepspeed:
+  zero_optimization:
+    stage: 3
+    offload_optimizer:
+      device: "cpu"
+      pin_memory: true
+    offload_param:
+      device: "cpu"
+      pin_memory: true
+    overlap_comm: true
+    contiguous_gradients: true
+    sub_group_size: 1e9
+    reduce_bucket_size: 5e8
+    stage3_prefetch_bucket_size: 5e8
+    stage3_param
+Sample Prompt for Takeaways
+
+Task: Explain the following code in detail.
+
+Context: This is a Python function that implements a binary search algorithm to find an element in a sorted list.
+
+Instructions:
 
 
-```python
-# convert_to_onnx.py
-from pathlib import Path
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Load model and tokenizer
-model_path = "./models/llama-7b-finetuned"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path)
 
-# Export to ONNX
-onnx_path = Path("./models/llama-7b-onnx")
-onnx_path.mkdir(exist_ok=True, parents=True)
 
-# Create dummy input
-dummy_input = tokenizer("Hello, I am an AI language model", return_tensors="pt")
+Provide a step-by-step explanation of how the code works.
 
-# Export model to ONNX
-torch.onnx.export(
-    model,
-# convert_to_onnx.py
-from pathlib import Path
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Load model and tokenizer
-model_path = "./models/llama-7b-finetuned"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path)
 
-# Export to ONNX
-onnx_path = Path("./models/llama-7b-onnx")
-onnx_path.mkdir(exist_ok=True, parents=True)
+Use bullet points for clarity.
 
-# Create dummy input
+
+
+Explain as if teaching a junior developer.
+
+
+
+Include any relevant best practices or edge cases.
+
+Code:
+
+def binary_search(arr, x):
+    low = 0
+    high = len(arr) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if arr[mid] == x:
+            return mid
+        elif arr[mid] < x:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1

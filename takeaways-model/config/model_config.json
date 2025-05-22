@@ -1,0 +1,58 @@
+{
+    "model": {
+        "base_model": "mistralai/Mistral-7B-v0.1",
+        "tokenizer": "mistralai/Mistral-7B-v0.1",
+        "max_length": 2048,
+        "lora": {
+            "r": 16,
+            "alpha": 32,
+            "dropout": 0.05,
+            "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]
+        }
+    },
+    "training": {
+        "num_train_epochs": 3,
+        "per_device_train_batch_size": 4,
+        "gradient_accumulation_steps": 4,
+        "learning_rate": 2e-4,
+        "max_grad_norm": 0.3,
+        "warmup_ratio": 0.03,
+        "evaluation_strategy": "epoch",
+        "save_total_limit": 3,
+        "fp16": true
+    },
+    "data": {
+        "train_split": 0.8,
+        "val_split": 0.1,
+        "test_split": 0.1,
+        "max_samples": null,
+        "datasets": {
+            "code_alpaca": {
+                "enabled": true,
+                "path": null
+            },
+            "human_eval": {
+                "enabled": true
+            },
+            "code_instruct": {
+                "enabled": true,
+                "path": null
+            }
+        }
+    },
+    "evaluation": {
+        "metrics": ["accuracy", "perplexity"],
+        "num_samples": 100,
+        "temperature": 0.2,
+        "explanation_quality_threshold": 0.7
+    },
+    "serving": {
+        "batch_size": 1,
+        "max_new_tokens": 512,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 50,
+        "num_beams": 1,
+        "repetition_penalty": 1.1
+    }
+}

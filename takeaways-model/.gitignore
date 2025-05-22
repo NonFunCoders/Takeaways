@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Model files
+models/
+*.pt
+*.bin
+*.model
+*.onnx
+
+# Data
+data/processed/
+*.csv
+*.tsv
+*.jsonl
+
+# Logs
+logs/
+*.log
+*.out
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ollama
+.ollama/
+Modelfile
