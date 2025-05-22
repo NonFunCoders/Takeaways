@@ -1,0 +1,96 @@
+name: Train and Publish Model
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  HUGGING_FACE_TOKEN: ${{ secrets.HUGGING_FACE_TOKEN }}
+
+jobs:
+  train:
+    runs-on: self-hosted
+    # Using self-hosted runner assuming it has GPU access
+    # If using cloud GPU, you'd need to set up appropriate runner labels
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r takeaways-model/requirements.txt
+        
+    - name: Setup data directories
+      run: |
+        mkdir -p takeaways-model-output
+        mkdir -p dataset_cache
+      
+    - name: Download datasets
+      run: |
+        python takeaways-model/data/dataset_loader.py
+      env:
+        HF_HOME: ./dataset_cache
+        
+    - name: Train model
+      run: |
+        python takeaways-model/train.py \
+          --config takeaways-model/config/model_config.json \
+          --output-dir takeaways-model-output
+      env:
+        HF_HOME: ./dataset_cache
+        TRANSFORMERS_CACHE: ./dataset_cache
+        CUDA_VISIBLE_DEVICES: 0
+        
+    - name: Upload training metrics
+      uses: actions/upload-artifact@v3
+      with:
+        name: training-metrics
+        path: takeaways-model-output/metrics.json
+        
+    - name: Push to Hugging Face Hub
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        python -c "
+        from huggingface_hub import HfApi
+        from huggingface_hub import login
+        
+        # Login to Hugging Face Hub
+        login(token='${{ secrets.HUGGING_FACE_TOKEN }}')
+        
+        # Initialize the API
+        api = HfApi()
+        
+        # Push the model to the Hub
+        api.upload_folder(
+            folder_path='takeaways-model-output/exported',
+            repo_id='NonFunCoders/Takeaways',
+            repo_type='model',
+        )
+        "
+
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          Model trained and published to Hugging Face Hub
+          
+          Metrics can be found in the training-metrics artifact of this workflow run.
+          
+          Model is available on Hugging Face Hub: https://huggingface.co/NonFunCoders/Takeaways
+        draft: false
+        prerelease: false

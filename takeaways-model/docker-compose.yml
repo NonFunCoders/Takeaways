@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  takeaways-api:
+    build: .
+    image: takeaways-model
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./exported:/app/exported
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - MODEL_PATH=/app/exported
+    restart: unless-stopped
+
+  # Monitoring service using Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    depends_on:
+      - takeaways-api
+
+  # Visualization using Grafana (optional)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=takeaways
+    depends_on:
+      - prometheus
+
+networks:
+  default:
+    driver: bridge
