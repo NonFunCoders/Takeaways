@@ -69,3 +69,41 @@ curl -X POST http://localhost:8000/generate \
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+
+## Automated Training with GitHub Actions
+
+The project includes a GitHub Actions workflow for automated model training and publishing. The workflow:
+
+1. Trains the model using GPU-enabled runners
+2. Evaluates model performance
+3. Publishes the trained model to Hugging Face Hub
+4. Creates a GitHub release with training metrics
+
+### Setup Requirements
+
+1. Configure GitHub Secrets:
+   - `HUGGING_FACE_TOKEN`: Access token from Hugging Face (create at https://huggingface.co/settings/tokens)
+   - `GITHUB_TOKEN`: Automatically provided by GitHub Actions
+
+2. Configure GPU Runner:
+   The workflow requires a self-hosted runner with GPU access. To set up:
+   
+   ```bash
+   # Add self-hosted runner with GPU
+   gh runner create --name gpu-runner --labels gpu
+   ```
+   
+   Alternatively, modify `.github/workflows/train-and-publish.yml` to use cloud GPU services.
+
+3. Create Hugging Face Repository:
+   - Create a new model repository at https://huggingface.co/new
+   - Name it 'Takeaways' under your organization
+
+### Triggering Training
+
+The workflow runs automatically on:
+- Push to main branch
+- Pull request to main branch
+- Manual trigger via GitHub Actions UI
+
+Monitor training progress in the Actions tab of your GitHub repository.
